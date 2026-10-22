@@ -130,7 +130,7 @@ export default function ManageCourses() {
                                                     </div>
                                                 )}
                                             </td>
-                                            <td className="space-x-2">
+                                            <td className="space-x-2 flex flex-col gap-2">
                                                 <Link to={`/admin/courses/edit/${course._id}`} className="btn btn-sm btn-warning">Edit</Link>
                                                 <button onClick={() => handleDelete(course._id)} className="btn btn-sm btn-error">Delete</button>
                                             </td>

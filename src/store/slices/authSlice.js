@@ -1,13 +1,18 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { loginUser, registerUser, getMe } from "../../services/auth.api";
-import { getToken, saveToken, clearToken } from "../../utils/auth";
+import { getToken, saveToken, clearToken, saveUser, getUser } from "../../utils/auth";
 
 export const loginAsync = createAsyncThunk(
     "auth/login",
     async (credentials, { rejectWithValue }) => {
         try {
             const res = await loginUser(credentials);
-            saveToken(res.data.token);
+            if (res.data?.token) {
+                saveToken(res.data.token);
+            }
+            if (res.data?.user) {
+                saveUser(res.data.user);
+            }
             return res.data;
         } catch (err) {
             return rejectWithValue(err.response?.data?.message || "Login failed");
@@ -20,7 +25,12 @@ export const registerAsync = createAsyncThunk(
     async (data, { rejectWithValue }) => {
         try {
             const res = await registerUser(data);
-            saveToken(res.data.token);
+            if (res.data?.token) {
+                saveToken(res.data.token);
+            }
+            if (res.data?.user) {
+                saveUser(res.data.user);
+            }
             return res.data;
         } catch (err) {
             return rejectWithValue(err.response?.data?.message || "Registration failed");
@@ -35,6 +45,9 @@ export const getMeAsync = createAsyncThunk(
             const token = getToken();
             if (!token) throw new Error("No token");
             const res = await getMe();
+            if (res.data) {
+                saveUser(res.data);
+            }
             return res.data;
         } catch (err) {
             clearToken();
@@ -46,13 +59,21 @@ export const getMeAsync = createAsyncThunk(
 const authSlice = createSlice({
     name: "auth",
     initialState: {
-        user: null,
+        user: getUser() || null,
         token: getToken() || null,
         loading: false,
         error: null,
         isAuthenticated: !!getToken(),
     },
     reducers: {
+        setCredentials: (state, action) => {
+            state.user = action.payload.user;
+            state.token = action.payload.token;
+            state.isAuthenticated = true;
+            state.error = null;
+            if (action.payload.token) saveToken(action.payload.token);
+            if (action.payload.user) saveUser(action.payload.user);
+        },
         logout: (state) => {
             state.user = null;
             state.token = null;
@@ -116,5 +137,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, clearError, setCredentials } = authSlice.actions;
 export default authSlice.reducer;

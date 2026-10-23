@@ -8,13 +8,13 @@ import { fetchMyEnrollments } from "../store/slices/enrollmentSlice";
 
 export default function MainLayout() {
     const dispatch = useDispatch();
-    const { token, isAuthenticated } = useSelector((state) => state.auth);
+    const { token, isAuthenticated, user } = useSelector((state) => state.auth);
 
     useEffect(() => {
-        if (token && !isAuthenticated) {
+        if (token && !user) {
             dispatch(getMeAsync());
         }
-    }, [token, isAuthenticated, dispatch]);
+    }, [token, user, dispatch]);
 
     useEffect(() => {
         if (isAuthenticated) {

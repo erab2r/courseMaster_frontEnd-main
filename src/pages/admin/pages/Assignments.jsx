@@ -222,7 +222,7 @@ export default function Assignments() {
                                         <p className="text-sm mt-1"><strong>Feedback:</strong> {activeSubmission.reviewNotes}</p>
                                     )}
                                     {activeSubmission.reviewer?.name && (
-                                        <p className="text-xs mt-1 text-base-content/60">Reviewed by: {activeSubmission.reviewer.name}</p>
+                                        <p className="text-xs mt-1 text-amber-950/80">Reviewed by: {activeSubmission.reviewer.name}</p>
                                     )}
                                 </div>
                             </div>
@@ -230,8 +230,8 @@ export default function Assignments() {
 
                         {/* Review Form */}
                         <div className="space-y-4">
-                            <div className="form-control">
-                                <label className="label">
+                            <div className="form-control flex flex-col gap-1.5 w-full">
+                                <label className="label p-0 justify-start">
                                     <span className="label-text font-semibold">Grade (0-100) *</span>
                                 </label>
                                 <input
@@ -241,27 +241,27 @@ export default function Assignments() {
                                     placeholder="Enter grade (0-100)"
                                     value={reviewGrade}
                                     onChange={(e) => setReviewGrade(e.target.value)}
-                                    className="input input-bordered"
+                                    className="input input-bordered w-full"
                                     required
                                 />
-                                <label className="label">
-                                    <span className="label-text-alt">Percentage score for this assignment</span>
+                                <label className="label p-0 justify-start">
+                                    <span className="label-text-alt text-xs opacity-70 mt-1 block">Percentage score for this assignment</span>
                                 </label>
                             </div>
 
-                            <div className="form-control">
-                                <label className="label">
+                            <div className="form-control flex flex-col gap-1.5 w-full">
+                                <label className="label p-0 justify-start">
                                     <span className="label-text font-semibold">Feedback / Review Notes *</span>
                                 </label>
                                 <textarea
                                     placeholder="Provide detailed feedback to the student..."
                                     value={reviewNotes}
                                     onChange={(e) => setReviewNotes(e.target.value)}
-                                    className="textarea textarea-bordered h-32"
+                                    className="textarea textarea-bordered h-32 w-full"
                                     required
                                 />
-                                <label className="label">
-                                    <span className="label-text-alt">Helpful feedback helps students improve</span>
+                                <label className="label p-0 justify-start">
+                                    <span className="label-text-alt text-xs opacity-70 mt-1 block">Helpful feedback helps students improve</span>
                                 </label>
                             </div>
 

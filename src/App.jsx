@@ -69,6 +69,18 @@ export default function App() {
             }
           />
 
+
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<LoadingSpinner />}>
+                  {/* <Profile /> */}
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+
           {/* admin dashboard with nested routes (protected) */}
           <Route
             path="/admin"

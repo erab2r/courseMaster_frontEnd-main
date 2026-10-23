@@ -95,12 +95,12 @@ export default function ManageCourses() {
                         <table className="table w-full">
                             <thead className="bg-base-200">
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Instructor</th>
-                                    <th>Price</th>
-                                    <th>Category</th>
-                                    <th>Syllabus</th>
-                                    <th>Actions</th>
+                                    <th className="px-4 py-3">Title</th>
+                                    <th className="px-4 py-3">Instructor</th>
+                                    <th className="px-4 py-3">Price</th>
+                                    <th className="px-4 py-3">Category</th>
+                                    <th className="px-4 py-3">Syllabus</th>
+                                    <th className="px-4 py-3">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -108,31 +108,43 @@ export default function ManageCourses() {
                                     const stats = getSyllabusStats(course);
                                     return (
                                         <tr key={course._id} className="hover:bg-base-100">
-                                            <td className="max-w-xs truncate font-semibold">{course.title}</td>
-                                            <td>{course.instructorName}</td>
-                                            <td>৳{course.price}</td>
-                                            <td>{course.category || "-"}</td>
-                                            <td>
+                                            <td className="align-middle px-4 py-3 max-w-xs font-semibold">{course.title}</td>
+                                            <td className="align-middle px-4 py-3 capitalize">{course.instructorName}</td>
+                                            <td className="align-middle px-4 py-3">৳{course.price}</td>
+                                            <td className="align-middle px-4 py-3 capitalize">{course.category || "-"}</td>
+                                            <td className="align-middle px-4 py-3">
                                                 {stats.modules === 0 ? (
                                                     <span className="text-xs text-base-content/50">No syllabus</span>
                                                 ) : (
-                                                    <div className="text-xs space-y-1">
-                                                        <div>📚 {stats.modules} Module{stats.modules !== 1 ? 's' : ''}</div>
-                                                        <div>📖 {stats.lessons} Lesson{stats.lessons !== 1 ? 's' : ''}</div>
-                                                        <div className="flex gap-3">
-                                                            {stats.quizzes > 0 && (
-                                                                <span className="text-primary">❓ {stats.quizzes} Quiz{stats.quizzes !== 1 ? 'zes' : ''}</span>
-                                                            )}
-                                                            {stats.assignments > 0 && (
-                                                                <span className="text-secondary">📝 {stats.assignments} Assignment{stats.assignments !== 1 ? 's' : ''}</span>
-                                                            )}
+                                                    <div className="text-xs flex flex-col gap-1">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span>📚</span>
+                                                            <span>{stats.modules} Module{stats.modules !== 1 ? 's' : ''}</span>
                                                         </div>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span>📖</span>
+                                                            <span>{stats.lessons} Lesson{stats.lessons !== 1 ? 's' : ''}</span>
+                                                        </div>
+                                                        {stats.assignments > 0 && (
+                                                            <div className="flex items-center gap-1.5 text-secondary">
+                                                                <span>📝</span>
+                                                                <span>{stats.assignments} Assignment{stats.assignments !== 1 ? 's' : ''}</span>
+                                                            </div>
+                                                        )}
+                                                        {stats.quizzes > 0 && (
+                                                            <div className="flex items-center gap-1.5 text-primary">
+                                                                <span>❓</span>
+                                                                <span>{stats.quizzes} Quiz{stats.quizzes !== 1 ? 'zes' : ''}</span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 )}
                                             </td>
-                                            <td className="space-x-2 flex flex-col gap-2">
-                                                <Link to={`/admin/courses/edit/${course._id}`} className="btn btn-sm btn-warning">Edit</Link>
-                                                <button onClick={() => handleDelete(course._id)} className="btn btn-sm btn-error">Delete</button>
+                                            <td className="align-middle px-4 py-3">
+                                                <div className="flex flex-col gap-2">
+                                                    <Link to={`/admin/courses/edit/${course._id}`} className="btn btn-sm btn-warning">Edit</Link>
+                                                    <button onClick={() => handleDelete(course._id)} className="btn btn-sm btn-error">Delete</button>
+                                                </div>
                                             </td>
                                         </tr>
                                     );
@@ -151,8 +163,8 @@ export default function ManageCourses() {
                                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                                             <div className="flex-1 min-w-0">
                                                 <div className="font-semibold text-base sm:text-lg break-words">{course.title}</div>
-                                                <div className="text-xs sm:text-sm text-base-content/70 mt-1">{course.instructorName}</div>
-                                                <div className="text-xs sm:text-sm text-base-content/70">{course.category || "-"}</div>
+                                                <div className="text-xs sm:text-sm text-base-content/70 mt-1 capitalize">{course.instructorName}</div>
+                                                <div className="text-xs sm:text-sm text-base-content/70 capitalize">{course.category || "-"}</div>
 
                                                 {/* Syllabus Stats */}
                                                 {stats.modules > 0 && (

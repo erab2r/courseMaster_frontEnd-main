@@ -1,26 +1,38 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
-import { getToken, clearToken } from "../../utils/auth";
+import { getToken, clearToken, getUser, saveUser } from "../../utils/auth";
+import { logout } from "../../store/slices/authSlice";
 import { getMe } from "../../services/auth.api";
 
 export default function Navbar() {
     const navigate = useNavigate();
-    const token = getToken();
-    const [me, setMe] = useState(null);
+    const dispatch = useDispatch();
+    const auth = useSelector((state) => state.auth);
+    const token = auth?.token || getToken();
+    const [me, setMe] = useState(() => auth?.user || getUser());
 
-    const navLinkClass = ({ isActive, to }) =>
-        (isActive || window.location.pathname.startsWith("/"))
+    const currentUser = auth?.user || me;
+
+    const navLinkClass = ({ isActive }) =>
+        isActive
             ? "text-primary font-semibold"
             : "text-base-content/80 hover:text-primary";
 
     const handleLogout = () => {
+        dispatch(logout());
         clearToken();
         setMe(null);
         navigate("/");
-        window.location.reload();
     };
+
+    useEffect(() => {
+        if (auth?.user) {
+            setMe(auth.user);
+        }
+    }, [auth?.user]);
 
     useEffect(() => {
         const loadMe = async () => {
@@ -28,16 +40,19 @@ export default function Navbar() {
             try {
                 const res = await getMe();
                 setMe(res.data);
-            } catch {
-                clearToken();
-                setMe(null);
+                saveUser(res.data);
+            } catch (err) {
+                if (err?.response?.status === 401) {
+                    clearToken();
+                    setMe(null);
+                }
             }
         };
         loadMe();
     }, [token]);
 
-    const initials = me?.name
-        ? me.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()
+    const initials = currentUser?.name
+        ? currentUser.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()
         : "U";
 
     return (
@@ -56,11 +71,11 @@ export default function Navbar() {
                         <li><NavLink className={navLinkClass} to="/courses">Courses</NavLink></li>
 
                         {/* ✅ Dashboard when logged in OR when dev_bypass is active */}
-                        {(token && me) ? (
+                        {(token && currentUser) ? (
                             <li>
                                 <NavLink
                                     className={navLinkClass}
-                                    to={me.role === "admin" ? "/admin" : "/student"}
+                                    to={currentUser.role === "admin" ? "/admin" : "/student"}
                                 >
                                     Dashboard
                                 </NavLink>
@@ -88,7 +103,7 @@ export default function Navbar() {
                     )}
 
                     {/* Desktop avatar if logged in */}
-                    {token && me && (
+                    {token && currentUser && (
                         <div className="hidden md:block dropdown dropdown-end">
                             <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
                                 <div className="w-9 rounded-full bg-primary text-primary-content flex items-center justify-center font-bold">
@@ -101,16 +116,16 @@ export default function Navbar() {
                                 className="dropdown-content mt-3 p-3 shadow bg-base-100 rounded-box w-60 border border-base-300"
                             >
                                 <div className="px-2 pb-2">
-                                    <p className="font-semibold">{me.name}</p>
-                                    <p className="text-sm text-base-content/70">{me.email}</p>
-                                    <p className="text-xs badge badge-outline mt-2">{me.role}</p>
+                                    <p className="font-semibold">{currentUser.name}</p>
+                                    <p className="text-sm text-base-content/70">{currentUser.email}</p>
+                                    <p className="text-xs badge badge-outline mt-2">{currentUser.role}</p>
                                 </div>
 
                                 <div className="my-2 border-t border-base-300" />
 
                                 {/* ✅ Dashboard inside dropdown only when logged in */}
                                 <li>
-                                    <Link to={me.role === "admin" ? "/admin" : "/student"}>
+                                    <Link to={currentUser.role === "admin" ? "/admin" : "/student"}>
                                         Dashboard
                                     </Link>
                                 </li>
@@ -146,11 +161,11 @@ export default function Navbar() {
                             <li><NavLink className={navLinkClass} to="/courses">Courses</NavLink></li>
 
                             {/* ✅ Dashboard only when logged in */}
-                            {token && me && (
+                            {token && currentUser && (
                                 <li>
                                     <NavLink
                                         className={navLinkClass}
-                                        to={me.role === "admin" ? "/admin" : "/student"}
+                                        to={currentUser.role === "admin" ? "/admin" : "/student"}
                                     >
                                         Dashboard
                                     </NavLink>
@@ -174,20 +189,20 @@ export default function Navbar() {
                                         <div className="w-12 h-12 rounded-full bg-primary text-primary-content flex items-center justify-center font-bold">
                                             {initials}
                                         </div>
-                                        <p className="font-semibold">{me?.name}</p>
-                                        <p className="text-xs text-base-content/70">{me?.email}</p>
+                                        <p className="font-semibold">{currentUser?.name}</p>
+                                        <p className="text-xs text-base-content/70">{currentUser?.email}</p>
                                     </div>
 
                                     <div className="my-2 w-full border-t border-base-300" />
 
                                     {/* ✅ Dashboard only when logged in */}
                                     <li className="w-full">
-                                        <Link to={me?.role === "admin" ? "/admin" : "/student"} className="w-full">
+                                        <Link to={currentUser?.role === "admin" ? "/admin" : "/student"} className="w-full">
                                             Dashboard
                                         </Link>
                                     </li>
 
-                                    <li className="w-full"><Link to="/profile">Profile</Link></li>
+                                    <li className="w-full"><Link to="/profile">  </Link></li>
                                     <li className="w-full">
                                         <button onClick={handleLogout} className="btn btn-ghost btn-sm w-full text-red-500">
                                             Logout

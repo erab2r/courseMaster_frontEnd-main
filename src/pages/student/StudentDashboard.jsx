@@ -189,6 +189,31 @@ export default function StudentDashboard() {
                         const stats = courseStats[courseId];
                         const isLoading = loadingStats[courseId];
 
+                        const completedLessons = enrollment.progress?.completedLessons?.length || 0;
+                        const courseData = stats?.courseData;
+                        let totalLessons = 0;
+
+                        if (courseData?.syllabus) {
+                            courseData.syllabus.forEach((module) => {
+                                if (module.lessons) {
+                                    totalLessons += module.lessons.length;
+                                }
+                            });
+                        } else if (enrollment.course?.syllabus) {
+                            enrollment.course.syllabus.forEach((module) => {
+                                if (module.lessons) {
+                                    totalLessons += module.lessons.length;
+                                }
+                            });
+                        }
+
+                        // Progress Calculation Safety:
+                        // Ensure progress percentage is safely calculated to avoid division by zero or operating on undefined values.
+                        const calculatedProgress = totalLessons > 0
+                            ? Math.round((completedLessons / totalLessons) * 100)
+                            : (enrollment.progress?.percent ?? 0);
+                        const progress = Number(calculatedProgress) || 0;
+
                         return (
                             <div
                                 key={enrollment._id}
@@ -226,45 +251,25 @@ export default function StudentDashboard() {
                                         <div className="flex justify-between items-center mb-3">
                                             <div>
                                                 <p className="text-sm font-semibold text-base-content/80">Course Progress</p>
-                                                {(() => {
-                                                    const completedCount = enrollment.progress?.completedLessons?.length || 0;
-                                                    const courseData = stats?.courseData;
-                                                    let totalLessons = 0;
-
-                                                    // Calculate total lessons (cached if available)
-                                                    if (courseData?.syllabus) {
-                                                        courseData.syllabus.forEach(module => {
-                                                            if (module.lessons) {
-                                                                totalLessons += module.lessons.length;
-                                                            }
-                                                        });
-                                                    }
-
-                                                    if (totalLessons > 0) {
-                                                        return (
-                                                            <p className="text-xs text-base-content/70 mt-1">
-                                                                {completedCount} of {totalLessons} lessons completed
-                                                            </p>
-                                                        );
-                                                    } else if (completedCount > 0) {
-                                                        return (
-                                                            <p className="text-xs text-base-content/70 mt-1">
-                                                                {completedCount} lesson{completedCount !== 1 ? 's' : ''} completed
-                                                            </p>
-                                                        );
-                                                    }
-                                                    return null;
-                                                })()}
+                                                {totalLessons > 0 ? (
+                                                    <p className="text-xs text-base-content/70 mt-1">
+                                                        {completedLessons} of {totalLessons} lessons completed
+                                                    </p>
+                                                ) : completedLessons > 0 ? (
+                                                    <p className="text-xs text-base-content/70 mt-1">
+                                                        {completedLessons} lesson{completedLessons !== 1 ? 's' : ''} completed
+                                                    </p>
+                                                ) : null}
                                             </div>
                                             <div className="text-right">
                                                 <p className="text-2xl sm:text-3xl font-bold text-primary">
-                                                    {Math.round((enrollment.progress?.completedLessons?.length / (stats?.courseData?.syllabus?.reduce((acc, m) => acc + (m.lessons?.length || 0), 0))) * 100)}%
+                                                    {progress}%
                                                 </p>
                                             </div>
                                         </div>
                                         <progress
                                             className="progress progress-primary w-full h-4"
-                                            value={enrollment.progress?.percent || 0}
+                                            value={progress}
                                             max="100"
                                         ></progress>
                                         {isExpanded && stats && (
